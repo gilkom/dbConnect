@@ -4,13 +4,21 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
+import java.util.Vector;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 
 public class dbDisplay {
-	private Connection conec;
-	private String[] tabL;
+	private Connection con;
+
+	private String[] tableL;
 	private String user;
 	private JFrame frame;
 	private JPanel panel;
@@ -20,30 +28,50 @@ public class dbDisplay {
 	private JComboBox<String> comboTable;
 	private JButton show;
 	private JScrollPane scr;
-	private JTable table = new JTable();
+	private JTable table;
+	private DefaultTableModel model;
 	
-	public dbDisplay(String[] tablesList,Connection con, String username) {
-		conec = con;
-		tabL = tablesList;
+	public dbDisplay(String driver, String hostname, String username, String password){
+		try {
+			Class.forName(driver);
+			con = DriverManager.getConnection(
+					"jdbc:oracle:thin:@"+ hostname + ":1521:orcl", username, password);
+			dbConnect dbc = new dbConnect(con);
+			setTableList(dbc);
+
+			//con.close();
+		}catch(Exception e) {
+			JOptionPane.showMessageDialog(null,  e, "Error", JOptionPane.ERROR_MESSAGE);			
+		}
+		
+
 		frame = new JFrame("dbConnect");
 		panel = new JPanel(new BorderLayout());
 		panelNorth = new JPanel();
 		panelCenter = new JPanel();
 		comboLabel = new JLabel("Choose table:");
-		comboTable = new JComboBox<String>(tablesList);
+		comboTable = new JComboBox<String>(tableL);
 		show = new JButton("Show");
 		show.addActionListener(new ActionListener() {
 			
 			public void actionPerformed(ActionEvent e) {
-				e
+				dbConnect dbc = new dbConnect (con);
+				
+				String slowo = comboTable.getSelectedItem().toString();
+				model = dbc.setTable(con, slowo);
+				System.out.println("button1");
+				table.setModel(model);
+				//table = new JTable(model);
+				
+				System.out.println("button2");
 				}
 				
 			}
-		});
-		scr = new JScrollPane();
+		);
+		table = new JTable(model);
+		scr = new JScrollPane(table);
 		scr.setPreferredSize(new Dimension(600,400));
 		
-		new dbConnect(con, username, tablesList);
 		
 		
 		panelCenter.add(scr);
@@ -62,7 +90,9 @@ public class dbDisplay {
 			};
 		});
 	}
-	void execute() {
-		dbConnect dbc = new dbConnect(conec, username, tab);
+	public void setTableList(dbConnect dbc) {
+		tableL = new String[dbc.getTableListSize()];
+		tableL =  dbc.setTableListS(con);
+		
 	}
 }

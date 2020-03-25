@@ -26,20 +26,8 @@ public class Main {
 		if(result == JOptionPane.OK_OPTION) {
 			username =  user.getText();
 			password =  pass.getText();
-			connect(driver, hostname, username, password);
+			new dbDisplay(driver, hostname, username, password);
 		}
 		
-	}
-	public static void connect(String driver, String hostname, String username, String password) {
-		try {
-			Class.forName(driver);
-			Connection con = DriverManager.getConnection(
-					"jdbc:oracle:thin:@"+ hostname + ":1521:orcl", username, password);
-			new dbConnect(con, username);
-			con.close();
-		}catch(Exception e) {
-			JOptionPane.showMessageDialog(null,  e, "Error", JOptionPane.ERROR_MESSAGE);
-			
-		}
 	}
 }
