@@ -19,7 +19,6 @@ public class dbDisplay {
 	private Connection con;
 
 	private String[] tableL;
-	private String user;
 	private JFrame frame;
 	private JPanel panel;
 	private JPanel panelNorth;
@@ -31,11 +30,11 @@ public class dbDisplay {
 	private JTable table;
 	private DefaultTableModel model;
 	
-	public dbDisplay(String driver, String hostname, String username, String password){
+	public dbDisplay(String driver, String hostname,String port, String sid, String username, String password){
 		try {
 			Class.forName(driver);
 			con = DriverManager.getConnection(
-					"jdbc:oracle:thin:@"+ hostname + ":1521:orcl", username, password);
+					"jdbc:oracle:thin:@"+ hostname + ":"+port+":"+sid, username, password);
 			dbConnect dbc = new dbConnect(con);
 			setTableList(dbc);
 
@@ -59,11 +58,7 @@ public class dbDisplay {
 				
 				String slowo = comboTable.getSelectedItem().toString();
 				model = dbc.setTable(con, slowo);
-				System.out.println("button1");
 				table.setModel(model);
-				//table = new JTable(model);
-				
-				System.out.println("button2");
 				}
 				
 			}
